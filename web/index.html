@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GameFit Agent</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">AI AGENT SERVER · PORT 8000</div>
+      <h1>게임업계 채용공고<br><span>적합도 분석 에이전트</span></h1>
+      <p>채용공고와 나의 경험을 비교해 강점, 부족한 역량, 다음 학습 계획을 한 번에 확인하세요.</p>
+      <div class="status"><i></i> Agent online <b>4 tools ready</b></div>
+    </header>
+
+    <section class="workspace">
+      <div class="input-card">
+        <div class="card-title"><span>01</span><div><b>분석할 내용을 입력하세요</b><small>두 항목을 모두 입력해야 분석이 시작됩니다.</small></div></div>
+        <label>채용공고</label>
+        <textarea id="job" rows="8">게임 서버 개발자를 모집합니다. C++ 기반 서버 개발과 TCP 네트워크 프로그래밍 경험이 필요합니다. MySQL 및 Redis 사용 경험을 우대하며 Git 협업 경험이 있어야 합니다. AWS, Docker 경험자는 우대합니다.</textarea>
+        <label>나의 기술·경험</label>
+        <textarea id="profile" rows="6">C++로 멀티플레이 게임 서버 프로젝트를 개발했습니다. TCP 소켓 통신과 MySQL 데이터 저장을 구현했고 GitHub로 팀 협업을 진행했습니다. Python 자동화 경험도 있습니다.</textarea>
+        <button id="analyze">에이전트 분석 시작 <span>→</span></button>
+        <p id="error" role="alert"></p>
+      </div>
+
+      <div class="result-card" id="result">
+        <div class="card-title"><span>02</span><div><b>분석 결과</b><small>에이전트가 선택한 도구와 판단 근거입니다.</small></div></div>
+        <div class="empty">왼쪽 내용을 확인하고 분석을 시작하세요.</div>
+      </div>
+    </section>
+
+    <section class="tools">
+      <div class="section-label">REGISTERED TOOLS</div>
+      <div class="tool-grid">
+        <article><em>01</em><b>요구사항 추출</b><span>공고 속 기술 스택 분류</span></article>
+        <article><em>02</em><b>지원자 분석</b><span>보유 기술과 경험 추출</span></article>
+        <article><em>03</em><b>적합도 계산</b><span>일치·부족 기술 비교</span></article>
+        <article><em>04</em><b>개선 계획 생성</b><span>우선순위 학습 액션 제안</span></article>
+      </div>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
+
