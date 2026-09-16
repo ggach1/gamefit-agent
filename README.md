@@ -1,5 +1,11 @@
 # GameFit Agent
 
+## Windows 실행용 다운로드
+
+**[GameFit-Windows-x64.zip 다운로드](https://github.com/ggach1/gamefit-agent/releases/download/v1.1.0/GameFit-Windows-x64.zip)** · [릴리스 및 실행 안내](https://github.com/ggach1/gamefit-agent/releases/tag/v1.1.0)
+
+ZIP 전체를 압축 해제하고 `GameFit/GameFit.exe`를 실행하세요. Python·OCR·한국어/영어 모델이 포함되어 별도 설치와 API 키가 필요 없습니다. `_internal` 폴더도 함께 유지하세요. GitHub의 `Code → Download ZIP` 또는 `Source code (zip)`은 소스 코드용이며 위 실행용 배포본과 다릅니다.
+
 게임업계 채용공고와 지원자 경험을 비교해 **적합도, 일치 기술, 부족 기술, 개선 계획**을 알려주는 AI 에이전트 서버입니다. 수행평가 주제표의 9번 “게임업계 채용공고 적합도 분석 봇”을 구현했습니다.
 
 > 이 프로젝트의 “AI 에이전트”는 외부 생성형 AI API가 아닌 설명 가능한 규칙 기반 에이전트입니다. 입력 상태와 중간 결과를 판단해 등록된 도구를 자율적으로 선택·실행합니다. 따라서 API 키나 유료 계정 없이 재현할 수 있습니다.
