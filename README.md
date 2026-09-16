@@ -2,7 +2,9 @@
 
 ## Windows 실행용 다운로드
 
-**[GameFit-Windows-x64.zip 다운로드](https://github.com/ggach1/gamefit-agent/releases/download/v1.1.0/GameFit-Windows-x64.zip)** · [릴리스 및 실행 안내](https://github.com/ggach1/gamefit-agent/releases/tag/v1.1.0)
+**[GameFit-Windows-x64.zip 다운로드](https://github.com/ggach1/gamefit-agent/releases/latest/download/GameFit-Windows-x64.zip)** · [최신 릴리스 및 실행 안내](https://github.com/ggach1/gamefit-agent/releases/latest)
+
+v1.1.1: 컴투스 채용 이미지 호스트 누락을 수정했습니다. 기존 배포본 사용자는 새 ZIP을 받아 별도 폴더에 압축 해제하고 실행하세요.
 
 ZIP 전체를 압축 해제하고 `GameFit/GameFit.exe`를 실행하세요. Python·OCR·한국어/영어 모델이 포함되어 별도 설치와 API 키가 필요 없습니다. `_internal` 폴더도 함께 유지하세요. GitHub의 `Code → Download ZIP` 또는 `Source code (zip)`은 소스 코드용이며 위 실행용 배포본과 다릅니다.
 
