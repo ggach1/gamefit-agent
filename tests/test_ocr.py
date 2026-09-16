@@ -7,5 +7,13 @@ class OCRTests(unittest.TestCase):
             with self.assertRaises(ValueError): validate_image_url(url)
         validate_image_url('https://image.ninehire.com/a.png')
 
+    def test_com2us_recruiter_host(self):
+        validate_image_url('https://com2us.recruiter.co.kr/upload/57043/image/202609/poster.png')
+        for url in ['https://com2us.recruiter.co.kr.evil.test/upload/a.png',
+                    'https://other.recruiter.co.kr/upload/a.png',
+                    'https://com2us.recruiter.co.kr:8000/upload/a.png']:
+            with self.assertRaises(ValueError):
+                validate_image_url(url)
+
     def test_invalid_image_reports_error(self):
         with self.assertRaises(ValueError): recognize(b'not an image')

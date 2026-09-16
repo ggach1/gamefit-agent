@@ -11,7 +11,7 @@ from urllib.request import Request, build_opener, HTTPRedirectHandler
 ROOT = Path(__file__).resolve().parent.parent
 IMAGE_HOSTS = {'image.ninehire.com', 'file.gamejob.co.kr', 'www.gamejob.co.kr',
                'i.jobkorea.kr', 'file1.jobkorea.co.kr', 'file2.jobkorea.co.kr',
-               'file.jobkorea.co.kr', 'www.jobkorea.co.kr'}
+               'file.jobkorea.co.kr', 'www.jobkorea.co.kr', 'com2us.recruiter.co.kr'}
 LOCK = threading.Lock()
 
 def validate_image_url(url):
