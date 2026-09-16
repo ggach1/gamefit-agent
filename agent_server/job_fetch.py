@@ -36,7 +36,7 @@ class Page(HTMLParser):
         a=dict(attrs)
         if tag in ('script','style','noscript','head'): self.skip+=1
         if tag=='iframe' and a.get('src'): self.frames.append(a['src'])
-        if tag=='img' and a.get('src'): self.images.append((a['src'], a.get('alt', '')))
+        if tag=='img' and (a.get('data-src') or a.get('src')): self.images.append((a.get('data-src') or a['src'], a.get('alt', '')))
         if tag in ('br','p','div','li'): self.text.append('\n')
     def handle_endtag(self, tag):
         if tag in ('script','style','noscript','head') and self.skip: self.skip-=1
@@ -50,35 +50,40 @@ def plain(html):
 
 def fetch_job(url):
     html=download(url); page=Page(); page.feed(html); parts=[]; ocr_count=0
+    seen_images = set()
+    def fragment(content, base):
+        nonlocal ocr_count
+        detail = Page(); detail.feed(content)
+        extracted = detail.plain()
+        for src, alt in detail.images:
+            image_url = urljoin(base, src)
+            if image_url in seen_images: continue
+            if len(seen_images) >= 6:
+                raise ValueError('공고 이미지가 6장을 초과합니다. 필요한 이미지를 직접 업로드하세요.')
+            seen_images.add(image_url)
+            image_text = recognize_url(image_url)
+            if image_text: extracted += '\n' + image_text
+            ocr_count += 1
+        return extracted
     if 'gamejob.co.kr' in urlsplit(url).hostname:
         for src in page.frames:
             target=urljoin(url,src)
             if urlsplit(target).path.lower() in ('/recruit/gi_read_comt_ifrm','/recruit/gi_read_gi_comment_ifrm'):
                 content = download(target)
-                extracted = plain(content)
-                detail = Page(); detail.feed(content)
-                if detail.images:
-                    # If the publisher labels a role-specific poster, omit decorative company banners.
-                    marked = [item for item in detail.images if any(k in item[1] for k in ('직무', '자격', '모집'))]
-                    images = marked or detail.images
-                    if len(images) > 6:
-                        raise ValueError('공고 이미지가 너무 많습니다. 본문을 직접 입력하세요.')
-                    for src, alt in images:
-                        image_text = recognize_url(urljoin(target, src))
-                        if image_text: extracted += '\n' + image_text
-                        ocr_count += 1
-                parts.append(extracted)
+                parts.append(fragment(content, target))
     else:
         def visit(obj):
             if isinstance(obj,dict):
-                if obj.get('@type')=='JobPosting' and isinstance(obj.get('description'),str): parts.append(plain(obj['description']))
+                if obj.get('@type')=='JobPosting' and isinstance(obj.get('description'),str): parts.append(fragment(obj['description'], url))
                 for v in obj.values(): visit(v)
             elif isinstance(obj,list):
                 for v in obj: visit(v)
         for script in re.findall(r'<script\b[^>]*type=[\"\x27]application/ld\+json[\"\x27][^>]*>(.*?)</script>',html,re.S|re.I):
-            try: visit(json.loads(script))
-            except ValueError: pass
+            try: obj = json.loads(script)
+            except ValueError: continue
+            visit(obj)
     text='\n\n'.join(parts)
     if len(text.strip())<40: raise ValueError('본문 추출 실패: 이미지 또는 동적 공고일 수 있습니다. 텍스트 입력으로 전환하세요.')
-    return {'url':url,'text':text[:60000], 'ocr_images':ocr_count,
+    if len(text) > 60000: raise ValueError('본문이 너무 깁니다. 필요한 이미지만 직접 업로드하세요.')
+    return {'url':url,'text':text, 'ocr_images':ocr_count,
             'warning':'OCR은 오탈자가 있을 수 있습니다. 추출 본문을 확인하고 수정해 재분석하세요.' if ocr_count else ''}

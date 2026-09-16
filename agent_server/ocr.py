@@ -5,35 +5,16 @@ from pathlib import Path
 import subprocess
 import tempfile
 import threading
-from urllib.parse import urlsplit
-from urllib.request import Request, build_opener, HTTPRedirectHandler
+from .safe_images import fetch_image, public_addresses
 
 ROOT = Path(__file__).resolve().parent.parent
-IMAGE_HOSTS = {'image.ninehire.com', 'file.gamejob.co.kr', 'www.gamejob.co.kr',
-               'i.jobkorea.kr', 'file1.jobkorea.co.kr', 'file2.jobkorea.co.kr',
-               'file.jobkorea.co.kr', 'www.jobkorea.co.kr', 'com2us.recruiter.co.kr'}
 LOCK = threading.Lock()
 
 def validate_image_url(url):
-    p = urlsplit(url)
-    if p.scheme != 'https' or p.hostname not in IMAGE_HOSTS or p.username or p.password or p.port not in (None, 443):
-        raise ValueError('지원하지 않는 이미지 호스트입니다. 공고 본문을 직접 입력하세요.')
-
-class ImageRedirect(HTTPRedirectHandler):
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        validate_image_url(newurl)
-        return super().redirect_request(req, fp, code, msg, headers, newurl)
+    public_addresses(url)
 
 def image_bytes(url):
-    validate_image_url(url)
-    try:
-        with build_opener(ImageRedirect()).open(Request(url, headers={'User-Agent': 'Mozilla/5.0'}), timeout=15) as r:
-            data = r.read(12_000_001)
-        if len(data) > 12_000_000:
-            raise ValueError('이미지가 너무 큽니다(최대 12MB).')
-        return data
-    except OSError as e:
-        raise ValueError('공고 이미지를 내려받지 못했습니다.') from e
+    return fetch_image(url)
 
 def recognize(data):
     engine = ROOT / 'vendor' / 'tesseract' / 'tesseract.exe'
@@ -48,16 +29,18 @@ def recognize(data):
         raise ValueError('다른 OCR 작업이 실행 중입니다. 잠시 후 다시 시도하세요.')
     try:
         with Image.open(io.BytesIO(data)) as original:
+            if original.format not in ('PNG', 'JPEG', 'WEBP', 'GIF', 'BMP', 'TIFF'):
+                raise ValueError('PNG, JPG, WEBP, GIF, BMP, TIFF 이미지만 지원합니다.')
             if original.width * original.height > 25_000_000:
                 raise ValueError('이미지 해상도가 너무 큽니다.')
             # Animated artwork: only first frame; relevant static posters are processed separately.
             original.seek(0)
-            rgba = original.convert('RGBA')
+            rgba = ImageOps.exif_transpose(original).convert('RGBA')
             white = Image.new('RGBA', rgba.size, 'white')
             white.alpha_composite(rgba)
             img = ImageOps.grayscale(white.convert('RGB'))
         if img.width < 1400:
-            scale = min(2, 1400 / img.width)
+            scale = min(2, 1400 / img.width, (25_000_000 / (img.width * img.height)) ** 0.5)
             img = img.resize((round(img.width * scale), round(img.height * scale)))
         env = os.environ.copy()
         env['OMP_THREAD_LIMIT'] = '2'

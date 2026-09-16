@@ -1,6 +1,29 @@
 const button = document.querySelector('#analyze');
 const result = document.querySelector('#result');
 const errorBox = document.querySelector('#error');
+const mode = document.querySelector('#source-mode');
+const filesInput = document.querySelector('#job-images');
+function updateMode() {
+  for (const name of ['url','images','text']) document.querySelector(`#${name}-panel`).hidden = mode.value !== name;
+}
+mode.addEventListener('change', updateMode);
+filesInput.addEventListener('change', () => {
+  const list = document.querySelector('#image-list');
+  list.replaceChildren();
+  for (const file of filesInput.files) {
+    const item = document.createElement('li');
+    item.textContent = `${file.name} (${(file.size / 1000000).toFixed(1)} MB)`;
+    list.append(item);
+  }
+});
+function readImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve({data: String(reader.result).split(',')[1]});
+    reader.onerror = () => reject(new Error('이미지 파일을 읽지 못했습니다.'));
+    reader.readAsDataURL(file);
+  });
+}
 
 const chips = (items, kind) => items.length
   ? `<div class="chips">${items.map(x => `<span class="chip ${kind}">${escapeHtml(x)}</span>`).join('')}</div>`
@@ -16,14 +39,21 @@ button.addEventListener('click', async () => {
   button.disabled = true;
   button.firstChild.textContent = '분석 중... ';
   try {
+    const payload = {candidate_profile: document.querySelector('#profile').value};
+    if (!payload.candidate_profile.trim()) throw new Error('나의 기술·경험을 입력하세요.');
+    if (mode.value === 'images') {
+      const files = Array.from(filesInput.files);
+      if (!files.length || files.length > 6) throw new Error('이미지를 1~6장 선택하세요.');
+      if (files.some(file => !file.size || file.size > 12000000) || files.reduce((s,f) => s + f.size, 0) > 24000000) throw new Error('이미지는 장당 12MB, 전체 24MB 이하여야 합니다.');
+      payload.images = await Promise.all(files.map(readImage));
+    } else if (mode.value === 'url') {
+      payload.job_url = document.querySelector('#job-url').value.trim();
+      if (!payload.job_url) throw new Error('공고 링크를 입력하거나 다른 입력 방법을 선택하세요.');
+    } else payload.job_posting = document.querySelector('#job').value;
     const response = await fetch('/api/analyze', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        job_url: document.querySelector('#job-url').value,
-        job_posting: document.querySelector('#job').value,
-        candidate_profile: document.querySelector('#profile').value
-      })
+      body: JSON.stringify(payload)
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || '분석에 실패했습니다.');
@@ -51,6 +81,8 @@ button.addEventListener('click', async () => {
       reuse.addEventListener('click', () => {
         document.querySelector('#job-url').value = '';
         document.querySelector('#job').value = text.value;
+        mode.value = 'text';
+        updateMode();
         button.click();
       });
       detail.append(summary, warning, text, reuse);
@@ -58,7 +90,7 @@ button.addEventListener('click', async () => {
       result.append(detail);
     }
   } catch (error) {
-    result.innerHTML = '<p>링크를 비우고 공고 본문을 직접 입력할 수 있습니다.</p>';
+    result.innerHTML = '<p>이미지 업로드 또는 텍스트 직접 입력으로 전환해 다시 분석할 수 있습니다.</p>';
     errorBox.textContent = error.message;
   } finally {
     button.disabled = false;
@@ -68,5 +100,6 @@ button.addEventListener('click', async () => {
 
 // 문서용 실행 화면을 재현할 때만 샘플 분석을 자동 실행한다.
 if (new URLSearchParams(window.location.search).get('demo') === '1') {
+  mode.value = 'text'; updateMode();
   button.click();
 }
