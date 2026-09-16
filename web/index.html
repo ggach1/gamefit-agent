@@ -9,7 +9,7 @@
 <body>
   <main>
     <header>
-      <div class="eyebrow">AI AGENT SERVER · PORT 8000</div>
+      <div class="eyebrow">GAMEFIT · LOCAL OCR</div>
       <h1>게임업계 채용공고<br><span>적합도 분석 에이전트</span></h1>
       <p>채용공고와 나의 경험을 비교해 강점, 부족한 역량, 다음 학습 계획을 한 번에 확인하세요.</p>
       <div class="status"><i></i> Agent online <b>4 tools ready</b></div>
@@ -18,7 +18,10 @@
     <section class="workspace">
       <div class="input-card">
         <div class="card-title"><span>01</span><div><b>분석할 내용을 입력하세요</b><small>두 항목을 모두 입력해야 분석이 시작됩니다.</small></div></div>
-        <label>채용공고</label>
+        <label for="job-url">게임잡 / 잡코리아 공고 링크 (선택)</label>
+        <input id="job-url" type="url" placeholder="https://www.gamejob.co.kr/Recruit/GI_Read/View?GI_No=284844" style="width:100%;padding:12px;box-sizing:border-box">
+        <p class="metric">링크를 넣으면 공고를 가져오며 게임잡 이미지 공고는 로컬 OCR로 읽습니다. 인식된 본문은 결과에서 수정할 수 있습니다.</p>
+        <label for="job">채용공고 텍스트 (링크가 없을 때 사용)</label>
         <textarea id="job" rows="8">게임 서버 개발자를 모집합니다. C++ 기반 서버 개발과 TCP 네트워크 프로그래밍 경험이 필요합니다. MySQL 및 Redis 사용 경험을 우대하며 Git 협업 경험이 있어야 합니다. AWS, Docker 경험자는 우대합니다.</textarea>
         <label>나의 기술·경험</label>
         <textarea id="profile" rows="6">C++로 멀티플레이 게임 서버 프로젝트를 개발했습니다. TCP 소켓 통신과 MySQL 데이터 저장을 구현했고 GitHub로 팀 협업을 진행했습니다. Python 자동화 경험도 있습니다.</textarea>
@@ -45,4 +48,3 @@
   <script src="/app.js"></script>
 </body>
 </html>
-

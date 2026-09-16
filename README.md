@@ -15,10 +15,16 @@
 
 ## 설치 및 실행
 
-필요 환경은 **Python 3.10 이상**이며 외부 패키지는 없습니다.
+### 선생님 PC에서 실행: Windows 배포본
+
+`release/GameFit-Windows-x64.zip` 전체를 압축 해제한 뒤 `GameFit/GameFit.exe`를 더블클릭합니다. Python, OCR 엔진, 한국어·영어 모델이 모두 포함되어 별도 설치나 API 키가 필요 없습니다. Windows 10/11 x64용입니다. `_internal` 폴더를 삭제하거나 EXE만 옮기지 마세요. 콘솔 창을 닫으면 서버가 종료됩니다. 기본 포트가 사용 중이면 다른 빈 포트로 브라우저가 열립니다.
+
+### 소스 실행
+
+텍스트 분석은 **Python 3.10 이상**으로 실행 가능합니다. OCR에는 Pillow와 `vendor/tesseract` 엔진·모델이 추가로 필요합니다. 제공 배포본은 이를 모두 포함합니다.
 
 ```bash
-git clone <본인의-GitHub-저장소-주소>
+git clone https://github.com/ggach1/gamefit-agent.git
 cd gamefit-agent
 python run.py
 ```
@@ -26,6 +32,14 @@ python run.py
 브라우저에서 `http://127.0.0.1:8000`을 엽니다. Windows에서 `python` 명령이 없다면 `py run.py`를 사용합니다. 두 명령 모두 없다면 [Python 공식 사이트](https://www.python.org/downloads/)에서 Python 3.10 이상을 설치하면서 **Add Python to PATH**를 선택합니다.
 
 ## 사용 방법
+
+공고 링크 입력란에 게임잡 또는 잡코리아 HTTPS 상세 URL을 넣으면 본문을 가져와 분석합니다. 링크가 있으면 텍스트 입력란보다 우선합니다. 게임잡 iframe의 이미지 공고는 로컬 Tesseract로 읽습니다. 잡코리아는 JobPosting 구조화 텍스트가 있는 페이지만 지원합니다. 로그인·동적 공고 및 미지원 이미지 호스트는 실패할 수 있으며, 그때는 링크를 비우고 본문을 직접 입력하세요. 공식 채용 API가 아닌 공개 HTML 읽기입니다.
+
+게임잡 GI_No=284844의 실제 이미지에서 Unity와 C#을 인식하는 것을 확인했습니다. OCR은 한글·기호를 틀리게 읽을 수 있습니다. 결과의 '가져온 공고 본문 확인'에서 수정 후 재분석할 수 있습니다. 점수는 사전에 등록된 기술의 일치 비율이지 합격 확률이 아닙니다. 공고를 내려받을 때 인터넷이 필요하지만 OCR은 로컬에서 수행하며 이미지는 작업 후 임시 폴더에서 제거됩니다.
+
+### 배포본 재생성
+
+Python 3.12 x64 가상환경에 `requirements-build.txt`를 설치합니다. `prepare_ocr.ps1`은 공식 배포처에서 엔진과 모델을 받아 프로젝트 내부에 추출합니다. 이후 `python build_portable.py`로 ZIP과 SHA256을 만듭니다. `vendor`, 가상환경, 빌드 산출물은 Git에 올리지 않습니다. 배포 ZIP을 별도로 전달하세요.
 
 1. 왼쪽 첫 입력란에 게임회사 채용공고를 붙여 넣습니다.
 2. 두 번째 입력란에 자신의 기술과 프로젝트 경험을 적습니다.

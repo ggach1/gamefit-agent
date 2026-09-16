@@ -4,4 +4,10 @@ __pycache__/
 .idea/
 .vscode/
 .DS_Store
-
+.build-venv/
+.build-tools/
+vendor/
+build/
+dist/
+release/
+*.spec
